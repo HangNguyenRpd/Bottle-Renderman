@@ -1,6 +1,10 @@
 A photorealistic thermal bottle rendered with Pixar Renderman 22.0 and integrated OSL. The aim is to match the reference photo as much as possible
 
 References:
+<img src="References/lying_bottle.png" width="1280"/>
+<img src="References/standing_bottle.png" width="1280"/>
+
+
 ![alt text](https://github.com/HangNguyenRpd/Bottle-Renderman/blob/main/References/lying_bottle.png)
 ![alt text](https://github.com/HangNguyenRpd/Bottle-Renderman/blob/main/References/standing_bottle.png)
 
