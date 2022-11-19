@@ -6,8 +6,8 @@ References:
 ![alt text](https://github.com/HangNguyenRpd/Bottle-Renderman/blob/main/References/standing_bottle.png)
 
 Rendered images:
-![alt text](https://github.com/HangNguyenRpd/Bottle-Renderman/blob/main/Results/bottle_01.tif)
-![alt text](https://github.com/HangNguyenRpd/Bottle-Renderman/blob/main/Results/bottle_02.tif)
+![alt text](https://github.com/HangNguyenRpd/Bottle-Renderman/blob/main/Results/bottle_01.png)
+![alt text](https://github.com/HangNguyenRpd/Bottle-Renderman/blob/main/Results/bottle_02.png)
 
 
 
