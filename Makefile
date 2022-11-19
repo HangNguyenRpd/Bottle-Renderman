@@ -1,13 +1,13 @@
 RENDER=prman
 SLCOMPILER=oslc
 VIEWER=sho
-TARGET=bottle
+TARGET=./Source/bottle.rib
 
-SHADERNAME=bottleDiffuse.osl noise.osl wave.osl
+SHADERNAME=./Source/bottleDiffuse.osl ./Source/noise.osl ./Source/wave.osl
 
-all: ${SHADERNAME} ${TARGET}.rib
+all: ${SHADERNAME} ${TARGET}
 	${SLCOMPILER} ${SHADERNAME}
-	${RENDER} ${TARGET}.rib
+	${RENDER} ${TARGET}
 
 show:
 	${VIEWER} ${TARGET}.tif
