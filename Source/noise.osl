@@ -1,0 +1,18 @@
+//This code is based on Ian Stephenson's Renderman21 examples
+
+shader noise (
+        float Cin=1,
+output	float Cout=1
+)
+{
+    float freq=5;
+    Cout=0.0;
+    int i;
+    for(i=0;i<8;i++)
+	{
+            Cout+=abs(noise("perlin", P*freq)/freq);
+            freq*=4;
+	}
+    Cout = clamp(Cout, 0, 1);
+}
+

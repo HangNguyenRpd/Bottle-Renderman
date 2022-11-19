@@ -1,0 +1,282 @@
+#Rendering the thermal bottle, export to bottle.tiff
+
+Display "bottle.tif" "file" "rgb"
+Option "searchpath" "texture" ["./Textures"]
+Option "bucket" "string order" ["spiral"]
+Format 1280 720 1
+Hider "raytrace" "int maxsamples" [1024]
+                 "int incremental" [1]
+                 "int adaptall" [1]
+PixelVariance 0.001
+ShadingRate 0.81
+Integrator "PxrPathTracer" "handle" "int numBxdfSamples" [1]
+Projection "PxrCamera" "fov" [20]
+DepthOfField 11 10 50
+
+DisplayChannel "color shadow"
+DisplayChannel "color occluded" "string source" ["color lpe:C[DS]+[LO]"]
+DisplayChannel "color unoccluded" "string source" ["color lpe:unoccluded;C[DS]+[LO]"]
+
+Display "+shadow" "null" "shadow"
+Display "+occluded" "null" "occluded"
+Display "+unoccluded" "null" "unoccluded"
+
+SampleFilter "PxrShadowFilter" "shadows"
+                               "string shadowAov" ["shadow"]
+                               "string occludedAov" ["occluded"]
+                               "string unoccludedAov" ["unoccluded"]
+SampleFilter "PxrImagePlaneFilter" "backplate"
+            "string filename" ["Textures/backplate.tx"] "int linearize" [1]
+            "string holdoutShadowAov" ["shadow" "occluded" "unoccluded"]
+
+SampleFilter "PxrSampleFilterCombiner" "SampleFilterCombine" "reference samplefilter[2] filter" ["shadows" "backplate"]
+
+Translate 2 -1 26
+Rotate -10 1 0 0
+
+Attribute "trace" "int maxdiffusedepth" [1] "int maxspeculardepth" [5]
+
+WorldBegin
+#LIGHT
+    AttributeBegin
+        Attribute "visibility" "int camera" [0]
+        Rotate -90 1 0 0
+        Rotate 0 0 1 0
+        Light "PxrDomeLight" "DomeLight"
+               "float intensity" [0.35]
+               "string lightColorMap" ["Textures/outdoor_Env.tx"]
+               "float exposure" [0.9]
+               "float diffuse" [0.1]
+               "float specular" [0.2]
+    AttributeEnd
+
+    AttributeBegin
+        Rotate 80 1 0 0
+        Rotate -25 0 1 0
+        Light "PxrDistantLight" "KeyLight"
+                "float intensity" [6000]
+                "float exposure" [1.8]
+                "float specular" [2]
+                "float diffuse" [0.6]
+                "float angleExtent" [50]
+                "int areaNormalize" [1]
+                "float shadowFalloff" [0]
+    AttributeEnd
+
+    AttributeBegin
+        Rotate 95 1 0 0
+        Rotate -5 0 1 0
+        Light "PxrDistantLight" "TopLight"
+            "float intensity" [10000]
+            "float exposure" [1]
+            "float specular" [1.5]
+            "float diffuse" [1.2]
+            "float angleExtent" [40]
+            "int areaNormalize" [1]
+            "float shadowFalloff"  [1]
+    AttributeEnd
+
+    AttributeBegin
+        Rotate -10 1 0 0
+        Rotate -70 0 1 0
+        Light "PxrDistantLight" "SecLight"
+            "float intensity" [5000]
+            "float exposure" [1]
+            "float specular" [0.5]
+            "float diffuse" [1]
+            "float angleExtent" [40]
+            "int areaNormalize" [1]
+            "float shadowFalloff" [0]
+    AttributeEnd
+
+    AttributeBegin
+        Rotate 119 1 0 0
+        Rotate 16 0 1 0
+        Light "PxrDistantLight" "SpecHighLight"
+                "float intensity" [800]
+                "float exposure" [1]
+                "float specular" [1]
+                "float diffuse" [1]
+                "float angleExtent" [15]
+                "int areaNormalize" [1]
+    AttributeEnd
+
+    AttributeBegin
+        Rotate 115 1 0 0
+        Rotate 26 0 1 0
+        Light "PxrDistantLight" "HighLight"
+                "float intensity" [5000]
+                "float exposure" [1]
+                "float specular" [1]
+                "float diffuse" [1]
+                "float angleExtent" [55]
+                "int areaNormalize" [1]
+    AttributeEnd
+
+#MODEL
+    ObjectBegin "bottle"
+        #Bottom
+        AttributeBegin
+            Translate 0 0 5.11
+            Bxdf "PxrSurface" "Plastic" "color diffuseColor" [0.2 0.2 0.2]
+                        "float diffuseGain" [0.3]
+                        "float diffuseExponent" [2]
+            Torus 1.05 0.03 0 360 360
+        AttributeEnd
+
+        #Body
+        AttributeBegin
+            Cylinder 1 -0.5 2 360
+            Pattern "noise" "noise" "color Cin" [1 1 1]
+            Pattern "bottleDiffuse" "bottleDiffuse" "color Cin" [0.65 0.65 0.66]
+                            "string filename" ["Textures/zebra.tx"]
+                            "float u_scaleFactor" [2.8] "float v_scaleFactor" [2.2]
+                            "float u_Position" [0.05] "float v_Position" [0.1]
+                            "float repeatCount" [420]
+                            "color dirtCol" [0.18 0.18 0.18]
+            Pattern "PxrFlakes" "flakes"
+                            "float flakeFreq" [2500]
+                            "float size" [0.9]
+            Bxdf "PxrSurface" "metal" "reference color diffuseColor" ["bottleDiffuse:Cout"]
+                                        "float diffuseGain" [0.9]
+                                        "float reflectionGain" [1]
+                                        "float diffuseExponent" [1.7]
+                                        "int specularModelType" [1]
+                                        "int specularFresnelMode" [1]
+                                        "color specularIor" [0 0 0]
+                                        "color specularExtinctionCoeff" [3 3 3]
+                                        "color specularEdgeColor"  [0 0 0]
+                                        "reference float roughSpecularRoughness" ["noise:Cout"]
+                                        "float specularAnisotropy" [0.0]
+                                        "float specularRoughness" [0.2]
+                                        "reference normal bumpNormal" ["flakes:resultN"]
+
+            Cylinder 1.08 0 5.1 360
+            Torus 1.04 0.04 0 360 360
+        AttributeEnd
+
+        #Band
+        AttributeBegin
+            Translate 0 0 -0.11
+            Bxdf "PxrSurface" "orangePlastic"
+                            "color diffuseColor" [0.72 0.2 0.1]
+                            "float diffuseGain" [1.2]
+                            "float specularRoughness" [0.1]
+                            "float diffuseExponent" [2]
+            Cylinder 1.08 0 0.07 360
+            Torus 1.06 0.02 0 360 360
+        AttributeEnd
+
+        #Cap
+        AttributeBegin
+            Translate 0 0 4.01
+            Rotate 179.9 0 1 0
+            AttributeBegin
+                Pattern "PxrManifold2D" "changeRec"
+                                    "float scaleS" [4.7]
+                                    "float scaleT" [1]
+                                    "float offsetS" [-1.6]
+                                    "float offsetT" [-0.1]
+                Pattern "PxrTexture" "rectGray"
+                                    "string filename" ["Textures/recta_gray.tx"]
+                                    "int linearize" [1]
+                                    "reference struct manifold" ["changeRec:result"]
+                Pattern "PxrTexture" "rectOrange"
+                                    "string filename" ["Textures/recta_orange.tx"]
+                                    "int linearize" [1]
+                                    "reference struct manifold" ["changeRec:result"]
+                Pattern "PxrTexture" "rectBump"
+                                    "string filename" ["Textures/recta_bump.tx"]
+                                    "reference struct manifold" ["changeRec:result"]
+                Attribute "displacementbound" "float sphere" [1]
+                Displace "PxrDisplace" "displace" "int enabled" [1] "float dispAmount" [0.055] "reference float dispScalar" ["rectBump:resultG"]
+                Pattern "PxrLayerMixer" "capShader"
+                                        "int baselayer_enableDiffuse" [1]
+                                        "int layer1_enableSpecular" [1]
+                                        "int layer1_enableDiffuse" [1]
+                                        "int layer1_enableSpecular" [1]
+                                        "int layer1_enableRoughSpecular" [1]
+                                        "int layer2Enabled" [1]
+                                        "int layer2_enableDiffuse" [1]
+                                        "int layer2_enableSpecular" [1]
+                                        "int layer2_enableRoughSpecular" [1]
+
+                                        "color baselayer_diffuseColor" [0.25 0.26 0.3]
+                                        "float baselayer_diffuseGain" [0.8]
+                                        "float baselayer_diffuseExponent" [1]
+                                        "reference float layer1Mask" ["rectGray:resultA"]
+                                        "reference color layer1_diffuseColor" ["rectGray:resultRGB"]
+                                        "float layer1_diffuseGain" [1]
+                                        "float layer1_reflectionGain" [3]
+                                        "reference float layer2Mask" ["rectOrange:resultA"]
+                                        "reference color layer2_diffuseColor" ["rectOrange:resultRGB"]
+                                        "float layer2_diffuseGain" [4.5]
+                                        "float layer2_reflectionGain" [0.7]
+                Bxdf "PxrLayerSurface" "cap"
+                                        "reference float diffuseGain" ["capShader:pxrMaterialOut_diffuseGain"]
+                                        "reference color diffuseColor" ["capShader:pxrMaterialOut_diffuseColor"]
+                                        "float diffuseExponent" [2.4]
+                                        "reference float diffuseRoughness" ["capShader:pxrMaterialOut_diffuseRoughness"]
+                                        "reference float reflectionGain" ["capShader:pxrMaterialOut_reflectionGain"]
+
+                Hyperboloid 1.08 0 4.15 1.15 0 4.85 360
+            AttributeEnd
+            AttributeBegin
+                Pattern "wave" "scratch"
+                            "color Cin" [0.25 0.26 0.3]
+                            "float scratchCol" [0.29]
+                            "float fizz" [2]
+                Bxdf "PxrSurface" "grayPlastic"
+                            "reference color diffuseColor" ["scratch:Cout"]
+                            "float diffuseGain" [1]
+                            "float diffuseExponent" [2.7]
+                            "float specularRoughness" [0.8]
+                            "float reflectionGain" [0.1]
+                Hyperboloid 1.14 0 4.85 1.05 0 4.93 360
+                Disk 4.93 1.06 360
+                Translate 0 0 4.84
+                Torus 1.11 0.04 0 360 360
+            AttributeEnd
+        AttributeEnd
+
+    ObjectEnd
+
+
+#SCENE SET UP
+                                                                                                                                  
+    AttributeBegin
+        #lying
+        Rotate 90.3 0 0 1
+        Rotate -62 1 0 0
+        #standing
+        #Translate -1.5 4 -1.5
+        #Rotate 180 0 1 0
+        #Rotate 90 1 0 0
+        ObjectInstance "bottle"
+    AttributeEnd
+
+    #catch shadow
+    AttributeBegin
+        Translate 0 -1.14 1
+        Scale 3 1 1.5
+        Attribute "trace" "int holdout" [1]
+        Bxdf "PxrSurface" "shadowPlate"
+                        "color diffuseColor" [0.98 0.98 0.98]
+                        "int diffuseDoubleSided" [1]
+        Patch "bilinear" "P" [-25 0 -6 -25 0 10 20 0 -6 20 0 10]
+    AttributeEnd
+
+    #catch reflection
+    AttributeBegin
+        Rotate 0 1 0 0
+        Attribute "trace" "int holdout" [1]
+        Bxdf "PxrSurface" "reflectObject"
+                        "color diffuseColor" [0 0 0]
+                        "int diffuseDoubleSided" [1]
+                        "float reflectionGain" [5]
+                        "float specularRoughness" [0]
+        Patch "bilinear" "P" [-10 -1 17.9 5 -1 19 -10 5 17.9 5 5 19]
+    AttributeEnd
+
+
+WorldEnd

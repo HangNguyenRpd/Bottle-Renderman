@@ -1,0 +1,27 @@
+//This code is based on Ian Stephenson's Renderman21 examples
+//The shader creates wave-like scratches
+
+shader wave (
+        color Cin = 1,
+        float fizz=3,
+        float scratchCol=0.8,
+output	color Cout=0
+)
+{
+    float fuzz=0.02;
+    int i;
+    float inLine;
+    float dist;
+    float s;
+    float t;
+    for(i=1;i<5;i++)
+        {
+        s=sin(u*i*M_PI)*noise(P * fizz);
+        dist=abs(s-0.15*i);
+        inLine=1-smoothstep(0.01-fuzz,0.01+fuzz,dist);
+        P=rotate(P, i*M_PI, 0, 1);
+        Cout=mix(Cout,inLine,inLine);
+        }
+    Cout=mix(Cin,scratchCol,Cout);
+}
+

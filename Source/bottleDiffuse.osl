@@ -1,0 +1,38 @@
+//The shader paints out the diffuse color for the body of the bottle
+
+shader bottleDiffuse (color Cin=1,
+              output color Cout=1,
+              output color colorMap=1,
+              output float alphaChan = 1,
+              string filename="",
+              float u_scaleFactor=1, float v_scaleFactor=1,
+              float u_Position=0, float v_Position=0,
+              float repeatCount=100,
+              color dirtCol=0.1)
+    {
+    //add noise
+    point PP=transform("shader",P);
+    Cout=(float)noise("perlin",P*repeatCount);
+    Cout=mix(Cin,Cout,Cout);
+
+    //add small wear and tear
+    float dist;
+    float fuzz=0.03;
+
+    dist=abs(v);
+    float firstLine=1-smoothstep(0.004-fuzz,0.002+fuzz,dist);
+    Cout=mix(Cout,0.6,firstLine);
+
+    dist=abs(v-0.02);
+    float secondLine=1-smoothstep(0.0045-fuzz,0.004+fuzz,dist);
+    Cout=mix(Cout,0.75,secondLine);
+
+    //add dirt map
+    colorMap=(color)texture("Textures/dirt.tx", u-0.08, v);
+    Cout = mix(Cout,dirtCol,colorMap);
+
+    //add logo
+    colorMap=(color)texture(filename, u_Position+u*u_scaleFactor, v_Position+v*v_scaleFactor, "alpha", alphaChan);
+    Cout = mix(Cout, colorMap, alphaChan);
+
+    }
